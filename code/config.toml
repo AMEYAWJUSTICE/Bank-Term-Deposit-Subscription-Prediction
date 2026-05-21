@@ -1,0 +1,22 @@
+[theme]
+primaryColor="#1f77b4"
+backgroundColor="#ffffff"
+secondaryBackgroundColor="#f8f9fa"
+textColor="#2c3e50"
+font="sans serif"
+
+[client]
+showErrorDetails=true
+toolbarMode="viewer"
+
+[logger]
+level="warning"
+
+[server]
+port=8501
+headless=true
+runOnSave=true
+maxUploadSize=100
+
+[browser]
+serverAddress="localhost"
