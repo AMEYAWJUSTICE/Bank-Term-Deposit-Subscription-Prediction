@@ -1,0 +1,1628 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bank Telemarketing Predictor - Web Dashboard</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/plotly.js/2.26.0/plotly.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary-color: #0a2342;
+            --secondary-color: #1e3a5f;
+            --accent-color: #c8a2c8;
+            --success-color: #1a5f2a;
+            --warning-color: #b8860b;
+            --danger-color: #8b0000;
+            --bg-light: #f5f7fa;
+            --bg-white: #ffffff;
+            --border-color: #d1d5db;
+            --text-dark: #1a1a1a;
+            --text-light: #6b7280;
+            --nav-bg: #0a2342;
+            --nav-text: #ffffff;
+            --card-shadow: 0 1px 3px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.24);
+            --card-shadow-hover: 0 4px 6px rgba(0, 0, 0, 0.13), 0 2px 4px rgba(0, 0, 0, 0.12);
+        }
+
+        body {
+            font-family: 'Poppins', 'Segoe UI', 'Roboto', 'Helvetica Neue', Arial, sans-serif;
+            background: var(--bg-light);
+            min-height: 100vh;
+            margin: 0;
+            padding: 0;
+            color: var(--text-dark);
+        }
+
+        .container {
+            max-width: 1600px;
+            margin: 0 auto;
+            padding: 0 30px;
+            display: flex;
+            gap: 30px;
+        }
+
+        .main-content {
+            flex: 1;
+        }
+
+        .sidebar {
+            width: 280px;
+            flex-shrink: 0;
+        }
+
+        .sidebar-card {
+            background: var(--bg-white);
+            border-radius: 8px;
+            box-shadow: var(--card-shadow);
+            border: 1px solid var(--border-color);
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .sidebar-menu {
+            list-style: none;
+            margin: 0;
+            padding: 0;
+        }
+
+        .sidebar-menu li {
+            margin-bottom: 8px;
+        }
+
+        .sidebar-menu a {
+            display: flex;
+            align-items: center;
+            padding: 12px 16px;
+            color: var(--text-dark);
+            text-decoration: none;
+            border-radius: 6px;
+            transition: all 0.3s ease;
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+
+        .sidebar-menu a:hover {
+            background: var(--bg-light);
+            color: var(--primary-color);
+            transform: translateX(4px);
+        }
+
+        .sidebar-menu a:active {
+            transform: translateX(2px);
+        }
+
+        .sidebar-menu a.active {
+            background: var(--primary-color);
+            color: white;
+        }
+
+        .sidebar-menu a svg {
+            margin-right: 12px;
+            width: 18px;
+            height: 18px;
+        }
+
+        .sidebar-title {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--text-light);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 12px;
+            padding-left: 16px;
+        }
+
+        /* Navigation Bar */
+        .navbar {
+            background: var(--nav-bg);
+            padding: 0 0;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .navbar-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            height: 64px;
+        }
+
+        .navbar-brand {
+            display: flex;
+            align-items: center;
+            color: var(--nav-text);
+            text-decoration: none;
+            font-size: 1.25rem;
+            font-weight: 600;
+        }
+
+        .navbar-brand svg {
+            margin-right: 10px;
+        }
+
+        .navbar-nav {
+            display: flex;
+            gap: 30px;
+            list-style: none;
+            margin: 0;
+            padding: 0;
+        }
+
+        .navbar-nav a {
+            color: var(--nav-text);
+            text-decoration: none;
+            font-size: 0.9rem;
+            font-weight: 500;
+            transition: opacity 0.3s ease;
+        }
+
+        .navbar-nav a:hover {
+            opacity: 0.8;
+            text-decoration: underline;
+            text-decoration-thickness: 2px;
+            text-underline-offset: 4px;
+        }
+
+        .navbar-user {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            color: var(--nav-text);
+            font-size: 0.9rem;
+        }
+
+        .hamburger {
+            display: none;
+            flex-direction: column;
+            cursor: pointer;
+            padding: 5px;
+            background: none;
+            border: none;
+        }
+
+        .hamburger span {
+            width: 25px;
+            height: 3px;
+            background: var(--nav-text);
+            margin: 3px 0;
+            transition: 0.3s;
+            border-radius: 2px;
+        }
+
+        .mobile-menu {
+            display: none;
+            position: absolute;
+            top: 64px;
+            left: 0;
+            right: 0;
+            background: var(--nav-bg);
+            padding: 20px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .mobile-menu.active {
+            display: block;
+        }
+
+        .mobile-menu a {
+            display: block;
+            color: var(--nav-text);
+            text-decoration: none;
+            padding: 12px 0;
+            font-size: 0.95rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .mobile-menu a:last-child {
+            border-bottom: none;
+        }
+
+        /* Header Styling */
+        .header {
+            background: var(--bg-white);
+            padding: 30px 40px;
+            border-bottom: 3px solid var(--primary-color);
+            margin-bottom: 30px;
+            box-shadow: var(--card-shadow);
+        }
+
+        .header h1 {
+            font-size: 1.75rem;
+            color: var(--primary-color);
+            margin-bottom: 8px;
+            font-weight: 600;
+        }
+
+        .header p {
+            color: var(--text-light);
+            font-size: 0.95rem;
+            margin: 0;
+        }
+
+        /* Main Grid Layout */
+        .grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 24px;
+            margin-bottom: 24px;
+        }
+
+        .grid.full {
+            grid-template-columns: 1fr;
+        }
+
+        .card {
+            background: var(--bg-white);
+            padding: 24px;
+            border-radius: 8px;
+            box-shadow: var(--card-shadow);
+            border: 1px solid var(--border-color);
+            border-top: 4px solid var(--primary-color);
+            transition: box-shadow 0.3s ease;
+        }
+
+        .card:hover {
+            box-shadow: var(--card-shadow-hover);
+            transform: translateY(-2px);
+            transition: all 0.3s ease;
+        }
+
+        .card h2 {
+            font-size: 1.25rem;
+            margin-bottom: 20px;
+            color: var(--primary-color);
+            font-weight: 600;
+            border-bottom: 2px solid var(--border-color);
+            padding-bottom: 12px;
+        }
+
+        .card h3 {
+            font-size: 1rem;
+            margin-top: 24px;
+            margin-bottom: 16px;
+            color: var(--secondary-color);
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        /* Input Form Styling */
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: var(--text-dark);
+            font-size: 0.9rem;
+        }
+
+        .form-group input,
+        .form-group select {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            font-size: 0.95rem;
+            transition: all 0.3s ease;
+            background: var(--bg-white);
+        }
+
+        .form-group input:hover,
+        .form-group select:hover {
+            border-color: #a0aec0;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(10, 35, 66, 0.15);
+        }
+
+        /* Button Styling */
+        .btn {
+            padding: 12px 24px;
+            font-size: 0.95rem;
+            font-weight: 600;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            width: 100%;
+        }
+
+        .btn-primary {
+            background: var(--primary-color);
+            color: white;
+            border: 1px solid var(--primary-color);
+        }
+
+        .btn-primary:hover {
+            background: var(--secondary-color);
+            border-color: var(--secondary-color);
+            box-shadow: 0 4px 12px rgba(10, 35, 66, 0.4);
+            transform: translateY(-2px);
+        }
+
+        .btn-primary:active {
+            transform: translateY(0);
+            box-shadow: 0 2px 4px rgba(10, 35, 66, 0.3);
+        }
+
+        /* Prediction Result Card */
+        .prediction-card {
+            border-left: 4px solid;
+            padding: 20px;
+            border-radius: 4px;
+            margin: 20px 0;
+            background: var(--bg-white);
+        }
+
+        .prediction-card.success {
+            border-left-color: var(--success-color);
+            background: rgba(26, 95, 42, 0.05);
+        }
+
+        .prediction-card.danger {
+            border-left-color: var(--danger-color);
+            background: rgba(139, 0, 0, 0.05);
+        }
+
+        .prediction-result {
+            font-size: 1.5em;
+            font-weight: 700;
+            margin-bottom: 15px;
+        }
+
+        .prediction-card.success .prediction-result {
+            color: var(--success-color);
+        }
+
+        .prediction-card.danger .prediction-result {
+            color: var(--danger-color);
+        }
+
+        /* Metrics Display */
+        .metrics {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 16px;
+            margin: 20px 0;
+        }
+
+        .metric {
+            background: var(--bg-white);
+            padding: 20px;
+            border-radius: 6px;
+            text-align: center;
+            border: 1px solid var(--border-color);
+            box-shadow: var(--card-shadow);
+            transition: all 0.3s ease;
+        }
+
+        .metric:hover {
+            box-shadow: var(--card-shadow-hover);
+            transform: translateY(-2px);
+        }
+
+        .metric-value {
+            font-size: 1.75rem;
+            font-weight: 700;
+            color: var(--primary-color);
+        }
+
+        .metric-label {
+            font-size: 0.85rem;
+            color: var(--text-light);
+            margin-top: 8px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        /* Progress Bar */
+        .progress-container {
+            margin: 20px 0;
+        }
+
+        .progress-label {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: var(--text-dark);
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: var(--bg-light);
+            border-radius: 4px;
+            overflow: hidden;
+            border: 1px solid var(--border-color);
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: var(--primary-color);
+            transition: width 0.5s ease;
+        }
+
+        /* Table Styling */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 15px 0;
+            background: var(--bg-white);
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        table thead {
+            background: var(--primary-color);
+            color: white;
+        }
+
+        table th {
+            padding: 12px 16px;
+            text-align: left;
+            font-weight: 600;
+            font-size: 0.9rem;
+            border-bottom: 1px solid var(--secondary-color);
+        }
+
+        table td {
+            padding: 12px 16px;
+            border-bottom: 1px solid var(--border-color);
+            font-size: 0.9rem;
+        }
+
+        table tbody tr {
+            transition: background-color 0.2s ease;
+        }
+
+        table tbody tr:hover {
+            background: var(--bg-light);
+            transform: scale(1.01);
+        }
+
+        table tbody tr:last-child td {
+            border-bottom: none;
+        }
+
+        /* Tabs */
+        .tabs {
+            display: flex;
+            border-bottom: 2px solid var(--border-color);
+            margin-bottom: 20px;
+            background: var(--bg-white);
+            border-radius: 4px 4px 0 0;
+        }
+
+        .tab-button {
+            padding: 12px 24px;
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-weight: 600;
+            color: var(--text-light);
+            border-bottom: 3px solid transparent;
+            transition: all 0.2s ease;
+            font-size: 0.9rem;
+        }
+
+        .tab-button:hover {
+            color: var(--primary-color);
+            background: var(--bg-light);
+            transform: translateY(-1px);
+        }
+
+        .tab-button.active {
+            color: var(--primary-color);
+            border-bottom-color: var(--primary-color);
+            background: var(--bg-white);
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        /* Alert Messages */
+        .alert {
+            padding: 16px;
+            border-radius: 4px;
+            margin: 15px 0;
+            border: 1px solid;
+            font-size: 0.9rem;
+        }
+
+        .alert-info {
+            background: rgba(10, 35, 66, 0.05);
+            border-left: 4px solid var(--primary-color);
+            border-color: var(--primary-color);
+            color: var(--primary-color);
+        }
+
+        .alert-success {
+            background: rgba(26, 95, 42, 0.05);
+            border-left: 4px solid var(--success-color);
+            border-color: var(--success-color);
+            color: var(--success-color);
+        }
+
+        .alert-error {
+            background: rgba(139, 0, 0, 0.05);
+            border-left: 4px solid var(--danger-color);
+            border-color: var(--danger-color);
+            color: var(--danger-color);
+        }
+
+        /* Loading Spinner */
+        .spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid var(--border-color);
+            border-top-color: var(--primary-color);
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Desktop Responsive Design */
+        @media (min-width: 1440px) {
+            .container {
+                max-width: 1600px;
+                padding: 0 40px;
+                gap: 40px;
+            }
+
+            .sidebar {
+                width: 300px;
+            }
+
+            .grid {
+                gap: 30px;
+            }
+
+            .card {
+                padding: 28px;
+            }
+
+            .header {
+                padding: 35px 40px;
+            }
+
+            .header h1 {
+                font-size: 1.85rem;
+            }
+        }
+
+        @media (min-width: 1920px) {
+            .container {
+                max-width: 1800px;
+                padding: 0 50px;
+                gap: 50px;
+            }
+
+            .sidebar {
+                width: 320px;
+            }
+
+            .grid {
+                gap: 35px;
+            }
+
+            .card {
+                padding: 32px;
+            }
+
+            .header {
+                padding: 40px 50px;
+            }
+
+            .header h1 {
+                font-size: 2rem;
+            }
+
+            .header p {
+                font-size: 1rem;
+            }
+
+            .card h2 {
+                font-size: 1.35rem;
+            }
+
+            .card h3 {
+                font-size: 1.1rem;
+            }
+
+            .form-group input,
+            .form-group select {
+                padding: 12px 14px;
+                font-size: 1rem;
+            }
+
+            .btn {
+                padding: 14px 28px;
+                font-size: 1rem;
+            }
+
+            .metric {
+                padding: 24px;
+            }
+
+            .metric-value {
+                font-size: 2rem;
+            }
+
+            .feature-group {
+                padding: 18px;
+            }
+        }
+
+        @media (min-width: 2560px) {
+            .container {
+                max-width: 2000px;
+                padding: 0 60px;
+                gap: 60px;
+            }
+
+            .sidebar {
+                width: 350px;
+            }
+
+            .grid {
+                gap: 40px;
+            }
+
+            .card {
+                padding: 36px;
+            }
+
+            .header {
+                padding: 45px 60px;
+            }
+
+            .header h1 {
+                font-size: 2.2rem;
+            }
+
+            .card h2 {
+                font-size: 1.5rem;
+            }
+
+            .card h3 {
+                font-size: 1.15rem;
+            }
+
+            .metric-value {
+                font-size: 2.2rem;
+            }
+        }
+
+        /* Responsive Design */
+        @media (max-width: 1024px) {
+            .container {
+                flex-direction: column;
+            }
+
+            .sidebar {
+                width: 100%;
+                order: 2;
+            }
+
+            .main-content {
+                order: 1;
+            }
+
+            .sidebar-card {
+                margin-bottom: 16px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .navbar-container {
+                padding: 0 16px;
+                height: 56px;
+            }
+
+            .navbar-brand {
+                font-size: 1.1rem;
+            }
+
+            .navbar-brand svg {
+                width: 24px;
+                height: 24px;
+            }
+
+            .navbar-nav {
+                display: none;
+            }
+
+            .hamburger {
+                display: flex;
+            }
+
+            .mobile-menu {
+                top: 56px;
+            }
+
+            .navbar-user {
+                font-size: 0.85rem;
+            }
+
+            .container {
+                padding: 0 16px;
+            }
+
+            .header {
+                padding: 20px 16px;
+                margin-bottom: 20px;
+            }
+
+            .header h1 {
+                font-size: 1.4rem;
+            }
+
+            .header p {
+                font-size: 0.85rem;
+            }
+
+            .grid {
+                grid-template-columns: 1fr;
+                gap: 16px;
+                margin-bottom: 16px;
+            }
+
+            .metrics {
+                grid-template-columns: 1fr;
+                gap: 12px;
+            }
+
+            .card {
+                padding: 20px 16px;
+            }
+
+            .card h2 {
+                font-size: 1.1rem;
+                margin-bottom: 16px;
+            }
+
+            .card h3 {
+                font-size: 0.9rem;
+                margin-top: 20px;
+                margin-bottom: 12px;
+            }
+
+            .form-group {
+                margin-bottom: 16px;
+            }
+
+            .form-group label {
+                font-size: 0.85rem;
+            }
+
+            .form-group input,
+            .form-group select {
+                padding: 10px;
+                font-size: 0.9rem;
+            }
+
+            .btn {
+                padding: 12px 20px;
+                font-size: 0.9rem;
+            }
+
+            .tabs {
+                flex-wrap: wrap;
+                gap: 0;
+            }
+
+            .tab-button {
+                padding: 10px 16px;
+                font-size: 0.85rem;
+                flex: 1;
+                min-width: 80px;
+                text-align: center;
+            }
+
+            .metric {
+                padding: 16px;
+            }
+
+            .metric-value {
+                font-size: 1.5rem;
+            }
+
+            .metric-label {
+                font-size: 0.8rem;
+            }
+
+            .feature-group {
+                padding: 12px;
+                margin: 8px 0;
+            }
+
+            .feature-group strong {
+                font-size: 0.85rem;
+            }
+
+            .feature-value {
+                font-size: 0.9rem;
+            }
+
+            table {
+                font-size: 0.85rem;
+            }
+
+            table th,
+            table td {
+                padding: 8px 12px;
+            }
+
+            .alert {
+                padding: 12px;
+                font-size: 0.85rem;
+            }
+
+            .sidebar-menu a {
+                padding: 10px 12px;
+                font-size: 0.85rem;
+            }
+
+            .sidebar-menu a svg {
+                width: 16px;
+                height: 16px;
+                margin-right: 10px;
+            }
+
+            .sidebar-title {
+                font-size: 0.8rem;
+                padding-left: 12px;
+            }
+
+            .footer {
+                padding: 20px 16px;
+            }
+
+            .footer p {
+                font-size: 0.8rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .navbar-brand {
+                font-size: 1rem;
+            }
+
+            .navbar-brand svg {
+                width: 20px;
+                height: 20px;
+            }
+
+            .header h1 {
+                font-size: 1.2rem;
+            }
+
+            .header h1 svg {
+                width: 24px;
+                height: 24px;
+            }
+
+            .card h2 svg {
+                width: 20px;
+                height: 20px;
+            }
+
+            .card h3 svg {
+                width: 16px;
+                height: 16px;
+            }
+
+            .metric-value {
+                font-size: 1.3rem;
+            }
+
+            .tab-button {
+                padding: 8px 12px;
+                font-size: 0.8rem;
+                min-width: 70px;
+            }
+
+            .form-group input,
+            .form-group select {
+                padding: 8px 10px;
+            }
+        }
+
+        /* Footer */
+        .footer {
+            background: var(--nav-bg);
+            color: var(--nav-text);
+            margin-top: 40px;
+            padding: 30px 20px;
+            text-align: center;
+        }
+
+        .footer p {
+            margin: 5px 0;
+            font-size: 0.85rem;
+        }
+
+        /* Chart Container */
+        .chart-container {
+            position: relative;
+            height: 300px;
+            margin: 20px 0;
+        }
+
+        /* Feature Breakdown */
+        .feature-group {
+            background: var(--bg-white);
+            padding: 16px;
+            border-radius: 4px;
+            margin: 12px 0;
+            border: 1px solid var(--border-color);
+            transition: all 0.3s ease;
+        }
+
+        .feature-group:hover {
+            border-color: var(--primary-color);
+            box-shadow: 0 2px 8px rgba(10, 35, 66, 0.1);
+        }
+
+        .feature-group strong {
+            display: block;
+            color: var(--primary-color);
+            margin-bottom: 8px;
+            font-size: 0.9rem;
+            font-weight: 600;
+        }
+
+        .feature-value {
+            color: var(--text-dark);
+            font-size: 0.95rem;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation Bar -->
+    <nav class="navbar">
+        <div class="navbar-container">
+            <a href="#" class="navbar-brand">
+                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="4" y="2" width="16" height="20" rx="2" ry="2"></rect>
+                    <line x1="9" y1="12" x2="15" y2="12"></line>
+                    <line x1="9" y1="16" x2="15" y2="16"></line>
+                    <line x1="9" y1="8" x2="15" y2="8"></line>
+                </svg>
+                Thrive Bank
+            </a>
+            <ul class="navbar-nav">
+                <li><a href="#">Dashboard</a></li>
+                <li><a href="#">Analytics</a></li>
+                <li><a href="#">Reports</a></li>
+                <li><a href="#">Settings</a></li>
+            </ul>
+            <button class="hamburger" onclick="toggleMobileMenu()">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+            <div class="navbar-user">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                    <circle cx="12" cy="7" r="4"></circle>
+                </svg>
+                <span>Admin User</span>
+            </div>
+        </div>
+        <div class="mobile-menu" id="mobileMenu">
+            <a href="#" onclick="toggleMobileMenu()">Dashboard</a>
+            <a href="#" onclick="toggleMobileMenu()">Analytics</a>
+            <a href="#" onclick="toggleMobileMenu()">Reports</a>
+            <a href="#" onclick="toggleMobileMenu()">Settings</a>
+        </div>
+    </nav>
+
+    <div class="container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-card">
+                <div class="sidebar-title">Quick Actions</div>
+                <ul class="sidebar-menu">
+                    <li>
+                        <a href="#" class="active">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <rect x="3" y="3" width="7" height="7"></rect>
+                                <rect x="14" y="3" width="7" height="7"></rect>
+                                <rect x="14" y="14" width="7" height="7"></rect>
+                                <rect x="3" y="14" width="7" height="7"></rect>
+                            </svg>
+                            Dashboard
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path>
+                                <polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline>
+                                <line x1="12" y1="22.08" x2="12" y2="12"></line>
+                            </svg>
+                            Analytics
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                                <polyline points="14 2 14 8 20 8"></polyline>
+                                <line x1="16" y1="13" x2="8" y2="13"></line>
+                                <line x1="16" y1="17" x2="8" y2="17"></line>
+                                <polyline points="10 9 9 9 8 9"></polyline>
+                            </svg>
+                            Reports
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <circle cx="12" cy="12" r="3"></circle>
+                                <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+                            </svg>
+                            Settings
+                        </a>
+                    </li>
+                </ul>
+            </div>
+
+            <div class="sidebar-card">
+                <div class="sidebar-title">System Status</div>
+                <div style="padding: 0 16px;">
+                    <div style="display: flex; align-items: center; margin-bottom: 12px;">
+                        <div style="width: 8px; height: 8px; background: #22c55e; border-radius: 50%; margin-right: 8px;"></div>
+                        <span style="font-size: 0.85rem; color: var(--text-dark);">Model Active</span>
+                    </div>
+                    <div style="display: flex; align-items: center; margin-bottom: 12px;">
+                        <div style="width: 8px; height: 8px; background: #22c55e; border-radius: 50%; margin-right: 8px;"></div>
+                        <span style="font-size: 0.85rem; color: var(--text-dark);">Database Connected</span>
+                    </div>
+                    <div style="display: flex; align-items: center;">
+                        <div style="width: 8px; height: 8px; background: #22c55e; border-radius: 50%; margin-right: 8px;"></div>
+                        <span style="font-size: 0.85rem; color: var(--text-dark);">API Operational</span>
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <!-- Header -->
+            <div class="header">
+                <h1><svg class="icon" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: middle; margin-right: 8px;"><rect x="4" y="2" width="16" height="20" rx="2" ry="2"></rect><line x1="9" y1="12" x2="15" y2="12"></line><line x1="9" y1="16" x2="15" y2="16"></line><line x1="9" y1="8" x2="15" y2="8"></line></svg>Bank Telemarketing Predictor</h1>
+                <p>Real-time prediction of term deposit subscription probability</p>
+            </div>
+
+            <!-- Main Content -->
+            <div class="grid">
+            <!-- Left Column: Input Form -->
+            <div class="card">
+                <h2><svg class="icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: middle; margin-right: 8px;"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>Client Profile Input</h2>
+                
+                <div class="form-group">
+                    <label for="age">Age</label>
+                    <input type="number" id="age" value="45" min="18" max="95">
+                </div>
+
+                <h3><svg class="icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: middle; margin-right: 8px;"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>Demographics</h3>
+                <div class="form-group">
+                    <label for="job">Job Title</label>
+                    <select id="job">
+                        <option value="management">Management</option>
+                        <option value="technician">Technician</option>
+                        <option value="services">Services</option>
+                        <option value="admin.">Admin</option>
+                        <option value="retired">Retired</option>
+                        <option value="blue-collar">Blue-collar</option>
+                        <option value="unemployed">Unemployed</option>
+                        <option value="entrepreneur">Entrepreneur</option>
+                        <option value="housemaid">Housemaid</option>
+                        <option value="unknown">Unknown</option>
+                        <option value="self-employed">Self-employed</option>
+                        <option value="student">Student</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="marital">Marital Status</label>
+                    <select id="marital">
+                        <option value="married">Married</option>
+                        <option value="single">Single</option>
+                        <option value="divorced">Divorced</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="education">Education Level</label>
+                    <select id="education">
+                        <option value="secondary">Secondary</option>
+                        <option value="tertiary">Tertiary</option>
+                        <option value="primary">Primary</option>
+                        <option value="unknown">Unknown</option>
+                    </select>
+                </div>
+
+                <h3><svg class="icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: middle; margin-right: 8px;"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"></rect><line x1="1" y1="10" x2="23" y2="10"></line></svg>Financial Status</h3>
+                <div class="form-group">
+                    <label for="balance">Account Balance (€)</label>
+                    <input type="number" id="balance" value="1500" min="-10000" max="100000" step="100">
+                </div>
+
+                <div class="form-group">
+                    <label for="default">Credit in Default?</label>
+                    <select id="default">
+                        <option value="no">No</option>
+                        <option value="yes">Yes</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="housing">Housing Loan?</label>
+                    <select id="housing">
+                        <option value="no">No</option>
+                        <option value="yes">Yes</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="loan">Personal Loan?</label>
+                    <select id="loan">
+                        <option value="no">No</option>
+                        <option value="yes">Yes</option>
+                    </select>
+                </div>
+
+                <h3><svg class="icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: middle; margin-right: 8px;"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path></svg>Contact Details</h3>
+                <div class="form-group">
+                    <label for="contact">Contact Type</label>
+                    <select id="contact">
+                        <option value="cellular">Cellular</option>
+                        <option value="unknown">Unknown</option>
+                        <option value="telephone">Telephone</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="day">Day of Month</label>
+                    <input type="number" id="day" value="15" min="1" max="31">
+                </div>
+
+                <div class="form-group">
+                    <label for="month">Month of Last Contact</label>
+                    <select id="month">
+                        <option value="may">May</option>
+                        <option value="jan">January</option>
+                        <option value="feb">February</option>
+                        <option value="mar">March</option>
+                        <option value="apr">April</option>
+                        <option value="jun">June</option>
+                        <option value="jul">July</option>
+                        <option value="aug">August</option>
+                        <option value="sep">September</option>
+                        <option value="oct">October</option>
+                        <option value="nov">November</option>
+                        <option value="dec">December</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="duration">Last Contact Duration (seconds)</label>
+                    <input type="number" id="duration" value="300" min="0" max="5000" step="30">
+                </div>
+
+                <h3><svg class="icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: middle; margin-right: 8px;"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg>Campaign Details</h3>
+                <div class="form-group">
+                    <label for="campaign">Contacts This Campaign</label>
+                    <input type="number" id="campaign" value="1" min="1" max="100">
+                </div>
+
+                <div class="form-group">
+                    <label for="pdays">Days Since Last Contact (-1 if none)</label>
+                    <input type="number" id="pdays" value="-1" min="-1" max="1000">
+                </div>
+
+                <div class="form-group">
+                    <label for="previous">Previous Contacts</label>
+                    <input type="number" id="previous" value="0" min="0" max="100">
+                </div>
+
+                <div class="form-group">
+                    <label for="poutcome">Previous Campaign Outcome</label>
+                    <select id="poutcome">
+                        <option value="unknown">Unknown</option>
+                        <option value="failure">Failure</option>
+                        <option value="other">Other</option>
+                        <option value="success">Success</option>
+                    </select>
+                </div>
+
+                <button class="btn btn-primary" onclick="makePrediction()">
+                    <svg class="icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: middle; margin-right: 8px;"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"></path></svg>Generate Prediction
+                </button>
+            </div>
+
+            <!-- Right Column: Prediction Results -->
+            <div class="card">
+                <h2><svg class="icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: middle; margin-right: 8px;"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg>Prediction Result</h2>
+                <div id="predictionResult" style="display:none;">
+                    <div id="predictionCard" class="prediction-card"></div>
+                    
+                    <h3>Confidence Scores</h3>
+                    <div class="metrics">
+                        <div class="metric">
+                            <div class="metric-value" id="probYesValue">--</div>
+                            <div class="metric-label">Probability of Yes</div>
+                        </div>
+                        <div class="metric">
+                            <div class="metric-value" id="probNoValue">--</div>
+                            <div class="metric-label">Probability of No</div>
+                        </div>
+                    </div>
+
+                    <div class="progress-container">
+                        <div class="progress-label">
+                            <span>Probability of 'Yes'</span>
+                            <span id="probYesPercent">0%</span>
+                        </div>
+                        <div class="progress-bar">
+                            <div class="progress-fill" id="probYesBar" style="width: 0%"></div>
+                        </div>
+                    </div>
+
+                    <div class="progress-container">
+                        <div class="progress-label">
+                            <span>Probability of 'No'</span>
+                            <span id="probNoPercent">0%</span>
+                        </div>
+                        <div class="progress-bar">
+                            <div class="progress-fill" id="probNoBar" style="width: 0%; background: linear-gradient(90deg, #999, #666);"></div>
+                        </div>
+                    </div>
+
+                    <div class="alert alert-info" style="margin-top: 20px;">
+                        <strong>Model Confidence:</strong> <span id="confidenceLevel">--</span>
+                    </div>
+                </div>
+
+                <div id="noPredictionMsg" class="alert alert-info">
+                    <svg class="icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: middle; margin-right: 8px;"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>Enter client details and click "Generate Prediction" to see results
+                </div>
+            </div>
+        </div>
+
+        <!-- Full Width: Details Section -->
+        <div class="card full">
+            <h2><svg class="icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: middle; margin-right: 8px;"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path><rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect></svg>Detailed Analysis</h2>
+            
+            <div class="tabs">
+                <button class="tab-button active" onclick="switchTab(event, 'summary')">Summary</button>
+                <button class="tab-button" onclick="switchTab(event, 'features')">Feature Breakdown</button>
+                <button class="tab-button" onclick="switchTab(event, 'model')">Model Info</button>
+            </div>
+
+            <!-- Summary Tab -->
+            <div id="summary" class="tab-content active">
+                <div class="grid">
+                    <div>
+                        <h3><svg class="icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: middle; margin-right: 8px;"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>Demographics</h3>
+                        <div class="feature-group">
+                            <strong>Age:</strong>
+                            <div class="feature-value" id="summaryAge">--</div>
+                        </div>
+                        <div class="feature-group">
+                            <strong>Job Title:</strong>
+                            <div class="feature-value" id="summaryJob">--</div>
+                        </div>
+                        <div class="feature-group">
+                            <strong>Marital Status:</strong>
+                            <div class="feature-value" id="summaryMarital">--</div>
+                        </div>
+                        <div class="feature-group">
+                            <strong>Education Level:</strong>
+                            <div class="feature-value" id="summaryEducation">--</div>
+                        </div>
+                    </div>
+
+                    <div>
+                        <h3><svg class="icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: middle; margin-right: 8px;"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"></rect><line x1="1" y1="10" x2="23" y2="10"></line></svg>Financial</h3>
+                        <div class="feature-group">
+                            <strong>Account Balance:</strong>
+                            <div class="feature-value" id="summaryBalance">--</div>
+                        </div>
+                        <div class="feature-group">
+                            <strong>Credit in Default:</strong>
+                            <div class="feature-value" id="summaryDefault">--</div>
+                        </div>
+                        <div class="feature-group">
+                            <strong>Housing Loan:</strong>
+                            <div class="feature-value" id="summaryHousing">--</div>
+                        </div>
+                        <div class="feature-group">
+                            <strong>Personal Loan:</strong>
+                            <div class="feature-value" id="summaryLoan">--</div>
+                        </div>
+                    </div>
+
+                    <div>
+                        <h3><svg class="icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: middle; margin-right: 8px;"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path></svg>Campaign Details</h3>
+                        <div class="feature-group">
+                            <strong>Month:</strong>
+                            <div class="feature-value" id="summaryMonth">--</div>
+                        </div>
+                        <div class="feature-group">
+                            <strong>Day:</strong>
+                            <div class="feature-value" id="summaryDay">--</div>
+                        </div>
+                        <div class="feature-group">
+                            <strong>Duration:</strong>
+                            <div class="feature-value" id="summaryDuration">--</div>
+                        </div>
+                        <div class="feature-group">
+                            <strong>Campaign Calls:</strong>
+                            <div class="feature-value" id="summaryCampaign">--</div>
+                        </div>
+                    </div>
+
+                    <div>
+                        <h3><svg class="icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: middle; margin-right: 8px;"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg>Contact History</h3>
+                        <div class="feature-group">
+                            <strong>Contact Type:</strong>
+                            <div class="feature-value" id="summaryContact">--</div>
+                        </div>
+                        <div class="feature-group">
+                            <strong>Days Since Last:</strong>
+                            <div class="feature-value" id="summaryPdays">--</div>
+                        </div>
+                        <div class="feature-group">
+                            <strong>Previous Contacts:</strong>
+                            <div class="feature-value" id="summaryPrevious">--</div>
+                        </div>
+                        <div class="feature-group">
+                            <strong>Previous Outcome:</strong>
+                            <div class="feature-value" id="summaryPoutcome">--</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Features Tab -->
+            <div id="features" class="tab-content">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Feature Name</th>
+                            <th>Value</th>
+                            <th>Type</th>
+                        </tr>
+                    </thead>
+                    <tbody id="featureTable">
+                        <tr>
+                            <td colspan="3" style="text-align: center; color: var(--text-light);">
+                                Make a prediction to see feature details
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Model Info Tab -->
+            <div id="model" class="tab-content">
+                <div class="alert alert-info">
+                    <h3><svg class="icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: middle; margin-right: 8px;"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>Model Information</h3>
+                    <p><strong>Model Type:</strong> Random Forest Classifier</p>
+                    <p><strong>Purpose:</strong> Predict whether a bank client will subscribe to a term deposit</p>
+                    <p><strong>Input Features:</strong> 15 features (numerical + categorical)</p>
+                    <p><strong>Training Data:</strong> Portuguese bank marketing dataset (11,162 records)</p>
+                    <p><strong>Output:</strong> Binary classification with probability scores</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="footer">
+            <p><svg class="icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: middle; margin-right: 8px;"><rect x="4" y="2" width="16" height="20" rx="2" ry="2"></rect><line x1="9" y1="12" x2="15" y2="12"></line><line x1="9" y1="16" x2="15" y2="16"></line><line x1="9" y1="8" x2="15" y2="8"></line></svg>Bank Telemarketing Success Predictor v1.0 | Powered by Random Forest Machine Learning</p>
+            <p style="font-size: 0.9em; margin-top: 10px;">Real-time Predictions | Professional Analytics</p>
+            <p style="font-size: 0.85em; margin-top: 15px;">
+                <a href="https://www.linkedin.com/in/your-linkedin-profile" target="_blank" style="color: var(--nav-text); text-decoration: none; display: inline-flex; align-items: center; gap: 6px; transition: opacity 0.3s ease;">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" stroke="none">
+                        <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/>
+                    </svg>
+                    LinkedIn
+                </a>
+                <span style="margin: 0 10px;">|</span>
+                Built by Ameyaw A
+            </p>
+        </div>
+        </div>
+    </div>
+
+    <script>
+        // Mobile menu toggle
+        function toggleMobileMenu() {
+            const mobileMenu = document.getElementById('mobileMenu');
+            mobileMenu.classList.toggle('active');
+        }
+
+        // Tab switching
+        function switchTab(event, tabName) {
+            // Hide all tabs
+            const contents = document.querySelectorAll('.tab-content');
+            contents.forEach(tab => tab.classList.remove('active'));
+
+            // Remove active class from all buttons
+            const buttons = document.querySelectorAll('.tab-button');
+            buttons.forEach(btn => btn.classList.remove('active'));
+
+            // Show selected tab
+            document.getElementById(tabName).classList.add('active');
+            event.target.classList.add('active');
+        }
+
+        // Make prediction (placeholder)
+        function makePrediction() {
+            // Get form values
+            const age = document.getElementById('age').value;
+            const job = document.getElementById('job').value;
+            const marital = document.getElementById('marital').value;
+            const education = document.getElementById('education').value;
+            const balance = document.getElementById('balance').value;
+            const default_val = document.getElementById('default').value;
+            const housing = document.getElementById('housing').value;
+            const loan = document.getElementById('loan').value;
+            const contact = document.getElementById('contact').value;
+            const day = document.getElementById('day').value;
+            const month = document.getElementById('month').value;
+            const duration = document.getElementById('duration').value;
+            const campaign = document.getElementById('campaign').value;
+            const pdays = document.getElementById('pdays').value;
+            const previous = document.getElementById('previous').value;
+            const poutcome = document.getElementById('poutcome').value;
+
+            // Generate demo prediction (in real implementation, this would call your model)
+            const probYes = Math.random() * 0.6 + 0.2; // Random between 0.2 and 0.8
+            const probNo = 1 - probYes;
+
+            // Update prediction result
+            updatePredictionResult(probYes, probNo);
+
+            // Update summary
+            updateSummary({
+                age, job, marital, education, balance, default_val,
+                housing, loan, contact, day, month, duration,
+                campaign, pdays, previous, poutcome
+            });
+
+            // Update feature table
+            updateFeatureTable({
+                age, job, marital, education, balance, default_val,
+                housing, loan, contact, day, month, duration,
+                campaign, pdays, previous, poutcome
+            });
+        }
+
+        function updatePredictionResult(probYes, probNo) {
+            const prediction = probYes > 0.5 ? 'Yes' : 'No';
+            const isSuccess = probYes > 0.5;
+            const confidence = Math.max(probYes, probNo);
+
+            // Update prediction card
+            const card = document.getElementById('predictionCard');
+            card.className = `prediction-card ${isSuccess ? 'success' : 'danger'}`;
+            card.innerHTML = `
+                <div class="prediction-result">
+                    ${isSuccess ? '<svg class="icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: middle; margin-right: 8px;"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg> Likely to Subscribe' : '<svg class="icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: middle; margin-right: 8px;"><circle cx="12" cy="12" r="10"></circle><line x1="15" y1="9" x2="9" y2="15"></line><line x1="9" y1="9" x2="15" y2="15"></line></svg> Unlikely to Subscribe'}
+                </div>
+                <p>This client has a <strong>${isSuccess ? 'high' : 'low'} probability</strong> of subscribing to a term deposit.</p>
+            `;
+
+            // Update metrics
+            document.getElementById('probYesValue').textContent = (probYes * 100).toFixed(1) + '%';
+            document.getElementById('probNoValue').textContent = (probNo * 100).toFixed(1) + '%';
+            document.getElementById('probYesPercent').textContent = (probYes * 100).toFixed(1) + '%';
+            document.getElementById('probNoPercent').textContent = (probNo * 100).toFixed(1) + '%';
+
+            // Update progress bars
+            document.getElementById('probYesBar').style.width = (probYes * 100) + '%';
+            document.getElementById('probNoBar').style.width = (probNo * 100) + '%';
+
+            // Update confidence level
+            let confidenceLevel = '<svg class="icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: middle; margin-right: 8px;"><circle cx="12" cy="12" r="10" fill="#22c55e" stroke="none"></circle></svg> Very High';
+            if (confidence < 0.75) confidenceLevel = confidence >= 0.65 ? '<svg class="icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: middle; margin-right: 8px;"><circle cx="12" cy="12" r="10" fill="#eab308" stroke="none"></circle></svg> High' : '<svg class="icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: middle; margin-right: 8px;"><circle cx="12" cy="12" r="10" fill="#ef4444" stroke="none"></circle></svg> Moderate';
+            document.getElementById('confidenceLevel').innerHTML = `${confidenceLevel} (${(confidence * 100).toFixed(1)}%)`;
+
+            // Show result, hide message
+            document.getElementById('predictionResult').style.display = 'block';
+            document.getElementById('noPredictionMsg').style.display = 'none';
+        }
+
+        function updateSummary(data) {
+            document.getElementById('summaryAge').textContent = data.age;
+            document.getElementById('summaryJob').textContent = data.job;
+            document.getElementById('summaryMarital').textContent = data.marital;
+            document.getElementById('summaryEducation').textContent = data.education;
+            document.getElementById('summaryBalance').textContent = '€' + parseInt(data.balance).toLocaleString();
+            document.getElementById('summaryDefault').textContent = data.default_val;
+            document.getElementById('summaryHousing').textContent = data.housing;
+            document.getElementById('summaryLoan').textContent = data.loan;
+            document.getElementById('summaryMonth').textContent = data.month;
+            document.getElementById('summaryDay').textContent = data.day;
+            document.getElementById('summaryDuration').textContent = data.duration + ' seconds';
+            document.getElementById('summaryCampaign').textContent = data.campaign;
+            document.getElementById('summaryContact').textContent = data.contact;
+            document.getElementById('summaryPdays').textContent = data.pdays;
+            document.getElementById('summaryPrevious').textContent = data.previous;
+            document.getElementById('summaryPoutcome').textContent = data.poutcome;
+        }
+
+        function updateFeatureTable(data) {
+            const features = [
+                { name: 'Age', value: data.age, type: 'Numerical' },
+                { name: 'Balance', value: '€' + parseInt(data.balance).toLocaleString(), type: 'Numerical' },
+                { name: 'Duration', value: data.duration + 's', type: 'Numerical' },
+                { name: 'Campaign', value: data.campaign, type: 'Numerical' },
+                { name: 'Previous', value: data.previous, type: 'Numerical' },
+                { name: 'Job', value: data.job, type: 'Categorical' },
+                { name: 'Marital', value: data.marital, type: 'Categorical' },
+                { name: 'Education', value: data.education, type: 'Categorical' },
+                { name: 'Default', value: data.default_val, type: 'Categorical' },
+                { name: 'Housing', value: data.housing, type: 'Categorical' },
+                { name: 'Loan', value: data.loan, type: 'Categorical' },
+                { name: 'Contact', value: data.contact, type: 'Categorical' },
+                { name: 'Month', value: data.month, type: 'Categorical' },
+                { name: 'Pdays', value: data.pdays, type: 'Numerical' },
+                { name: 'Poutcome', value: data.poutcome, type: 'Categorical' }
+            ];
+
+            const tbody = document.getElementById('featureTable');
+            tbody.innerHTML = features.map(f => `
+                <tr>
+                    <td><strong>${f.name}</strong></td>
+                    <td>${f.value}</td>
+                    <td>${f.type}</td>
+                </tr>
+            `).join('');
+        }
+
+        // Optional: Load initial prediction
+        window.addEventListener('load', () => {
+            // You can auto-generate a prediction on load if desired
+            // makePrediction();
+        });
+    </script>
+</body>
+</html>
